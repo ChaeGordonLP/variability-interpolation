@@ -22,11 +22,12 @@ power = power.values
 interpolated = []
 
 # if 30 minute data change 10--> 30
+# energy should remain unaffected
 
 for i in range(len(power)-1):
     for j in range(10):
         if 10 > j > 0:
-            a = power[i] + j*(power[i+1]-power[i])/10 + np.random.normal(loc=0,scale=0.01)
+            a = power[i] + j*(power[i+1]-power[i])/10 + np.random.normal(loc=0,scale=0.05)
         else:
             a = power[i] + j*(power[i+1]-power[i])/10
         if a > 0:
