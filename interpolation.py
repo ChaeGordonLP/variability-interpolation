@@ -13,22 +13,24 @@ throttle_a = []
 loss_a = []
 energy_vio_a = []
 
+df = pd.read_csv("T1.csv")
+    
+sigma = 0.03  # 0.4 needed for 10% loss !!
+    
+# want to take the 10 minute power data and interpolate into 1-minute data
+    
+# normalising data into fractional values of total rated power
+    
+power = df["LV ActivePower (kW)"]/df["LV ActivePower (kW)"].max()
+    
+max_power = df["LV ActivePower (kW)"].max()  # 3.6 MW
+    
+power = power.values
+
+
 for i in range(31):
     throttle = i*(0.1)
-    df = pd.read_csv("T1.csv")
-    
-    sigma = 0.03  # 0.4 needed for 10% loss !!
-    
-    # want to take the 10 minute power data and interpolate into 1-minute data
-    
-    # normalising data into fractional values of total rated power
-    
-    power = df["LV ActivePower (kW)"]/df["LV ActivePower (kW)"].max()
-    
-    max_power = df["LV ActivePower (kW)"].max()  # 3.6 MW
-    
-    power = power.values
-    
+        
     interpolated = []
     
     load = throttle*np.average(power)
