@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Jan 22 15:28:04 2020
+Created on Wed Jan 22 17:53:32 2020
 
 @author: PeterParker
 """
@@ -25,6 +25,8 @@ for i in range(len(df_2)):
 
 df = pd.DataFrame(data=power, columns=["Average Power/ kW"])
     
+sigma = 0.03  # 0.4 needed for 10% loss !!
+    
 # want to take the 30 minute power data and interpolate into 1-minute data
     
 # normalising data into fractional values of total rated power
@@ -47,9 +49,9 @@ print(sigma_12)
 
 loss_at_load_factor = 0
 
-for i in range(31):
-    throttle = 1
-    sigma = i*0.01  # 0.4 needed for 10% loss !!
+for i in range(30):
+    throttle = i*(0.1)
+        
     interpolated = []
     
     load = throttle*np.average(power)
@@ -106,11 +108,11 @@ for i in range(31):
     print("lost Energy: {0:.2f} %".format(100*lost_E/energy_data))
     print("Energy Conservation Violated by {0:.2f} %".format(100*(energy_interpolated-energy_data)/(energy_data)))
     
-    throttle_a.append(sigma)
+    throttle_a.append(throttle)
     loss_a.append(100*lost_E/energy_data)
     energy_vio_a.append(100*(energy_interpolated-energy_data)/(energy_data))
     
-    if sigma == 0.03:
+    if throttle == 1:
         power_g = power[0:3]
         interpolated_g = interpolated[0:61]  # check this
         avg_line_g = avg_line[0:61]
@@ -125,7 +127,7 @@ for i in range(31):
         plt.legend()
         plt.xlabel("Time Elapsed (min)")
         plt.ylabel("Power Fraction of Rated Capacity")
-        #plt.savefig("interpolation_example.pdf")
+        plt.savefig("interpolation_example.pdf")
         plt.show()
         
         energy_t_interpolated = np.log((1/60)*np.cumsum(interpolated)*max_power)
@@ -137,7 +139,7 @@ for i in range(31):
         plt.xlabel("Time Elapsed (min)")
         plt.plot(np.linspace(0, len(energy_t_interpolated),num=len(energy_t_interpolated),endpoint=False), energy_t_interpolated)
         plt.plot(np.linspace(0, 30*len(energy_t_data),num=len(energy_t_data),endpoint=False), energy_t_data)
-        #plt.savefig("energy_cons.pdf")
+        plt.savefig("energy_cons.pdf")
     else:
         pass
 
@@ -147,8 +149,8 @@ loss_a[0]=0
 
 plt.figure()
 plt.plot(throttle_a,loss_a)
-plt.title("Percentage Energy Loss as a funciton of 1-min Variability")
+plt.title("Percentage Energy Loss as a funciton of IT Sizing")
 plt.ylabel(r"Percentage Energy Loss (%)")
-plt.xlabel("1-min Variability (% RCOV)")
-plt.savefig("loss_sigma.pdf")
+plt.xlabel("IT sizing as a Fraction of Annual Average Power")
+plt.savefig("loss_load.pdf")
 
