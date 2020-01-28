@@ -28,7 +28,7 @@ power = []
 for i in range(len(df_2)):
     for j in range(48):
         power.append(df_2[i,j+2])
-        
+        # the + 2 is due to the first x value being two in from the left
 
 df = pd.DataFrame(data=power, columns=["Average Power/ kW"])
     
@@ -40,7 +40,7 @@ power = df["Average Power/ kW"]
     
 max_power = df["Average Power/ kW"].max()  # 3.6 MW
 
-power_split = np.array_split(power.values, int(len(power)/24)) # split into 12 hrs
+power_split = np.array_split(power.values, len(power)/24) # split into 12 hrs
 
 power_agg = np.array([sum(i) for i in power_split]) # aggregate the 12 hours
 
@@ -53,6 +53,13 @@ power = power.values
 print(sigma_12)
 
 loss_at_load_factor = 0
+
+"""
+Want to incorporate P&L and the powerdrive response time & workings
+1)try and account for accuracy in forecast of weather (maybe add random noise)
+2)talk through inner workings
+"""
+
 
 for i in range(31):
     throttle = 1
