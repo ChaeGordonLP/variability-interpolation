@@ -44,6 +44,8 @@ df = pd.DataFrame(data=power, columns=["Average Power/ kW"])
 
 power_split_m = np.array_split(df.values, math.ceil(len(df)/month)) # split into months
 
+"""Want to calculate utilisation from this & from the agg. value and compare"""
+
 power_agg_m = np.array([sum(i) for i in power_split_m]) # aggregate the months
 
 # avoiding the fact that don't have all 5 years use [] in the arguments
@@ -92,8 +94,8 @@ print(sigma_12)
 
 loss_at_load_factor = 0
 
-for i in range(30):
-    throttle = i*(0.1)
+for i in range(1):
+    throttle = 1  # i*(0.1) # just want to analyse the case of box @ l.f
         
     interpolated = []
     
