@@ -41,6 +41,8 @@ power_agg_m = np.array([sum(i) for i in power_split_m]) # aggregate the months
 
 # rounds years up
 
+"Should now use math.ceil"
+
 counter = math.ceil(len(df)/year) - 1
 
 listy = [(i+1)*year for i in range(counter)]

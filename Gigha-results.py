@@ -5,6 +5,8 @@ Created on Wed Jan 22 17:53:32 2020
 @author: PeterParker
 """
 
+"There is an error in this code as should be i*resolution + j as the index not i+j"
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -12,6 +14,7 @@ import matplotlib.pyplot as plt
 throttle_a = []
 loss_a = []
 energy_vio_a = []
+resolution_hh = 30
 
 df_2 = 2*pd.read_excel("Gigha_data_30_min.xlsx").values
 
@@ -63,12 +66,16 @@ for i in range(30):
     avg_line = []
     
     for i in range(len(power)-29):
-        for j in range(30):
+        for j in range(resolution_hh):
             avg_line.append(power[i])
             # have it so random fluctuation is centred on previous point
-            a = power[i+j] + np.random.normal(loc=0,scale=sigma) 
+            # this doesn't work
+            if j==0:
+                a = power[i] + np.random.normal(loc=0,scale=sigma)
+            else:
+                a = interpolated[i*resolution_hh+j-1] + np.random.normal(loc=0,scale=sigma)
             if a > 0:
-                if 1 > a:
+                if a < 1:
                     interpolated.append(a)
                     if power[i]>load:
                         if a < load:

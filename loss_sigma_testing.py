@@ -2,15 +2,10 @@
 """
 Created on Thu Jan 23 08:56:00 2020
 
-@author: PeterParker
+@author: Chae Gordon
 """
 
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Jan 22 15:28:04 2020
-
-@author: PeterParker
-"""
 
 import numpy as np
 import pandas as pd
@@ -19,6 +14,7 @@ import matplotlib.pyplot as plt
 throttle_a = []
 loss_a = []
 energy_vio_a = []
+resolution_hh = 30
 
 df_2 = 2*pd.read_excel("Gigha_data_30_min.xlsx").values
 
@@ -75,10 +71,13 @@ for i in range(31):
     avg_line = []
     
     for i in range(len(power)-29):
-        for j in range(30):
+        for j in range(resolution_hh):
             avg_line.append(power[i])
             # have it so random fluctuation is centred on previous point
-            a = power[i+j] + np.random.normal(loc=0,scale=sigma) 
+            if j==0:
+                a = power[i] + np.random.normal(loc=0,scale=sigma)
+            else:
+                a = interpolated[i*resolution_hh+j-1] + np.random.normal(loc=0,scale=sigma)
             if a > 0:
                 if 1 > a:
                     interpolated.append(a)
@@ -140,7 +139,7 @@ for i in range(31):
         plt.xlabel("Time Elapsed (min)")
         plt.ylabel("Power Fraction of Rated Capacity")
         #plt.savefig("interpolation_example.pdf")
-        plt.show()
+        # plt.show()
         
         energy_t_interpolated = np.log((1/60)*np.cumsum(interpolated)*max_power)
         energy_t_data = np.log((1/2)*np.cumsum(power)*max_power )
@@ -165,4 +164,11 @@ plt.title("Percentage Energy Loss as a funciton of 1-min Variability")
 plt.ylabel(r"Percentage Energy Loss (%)")
 plt.xlabel("1-min Variability (% COV)")
 plt.savefig("loss_sigma.pdf")
+
+plt.figure()
+plt.plot(throttle_a,energy_vio_a)
+plt.title("Percentage Energy Violation as a funciton of 1-min Variability")
+plt.ylabel(r"Percentage Energy Violation (%)")
+plt.xlabel(r"1-min Variability (% COV)")
+plt.savefig("e_cons_sigma.pdf")
 
