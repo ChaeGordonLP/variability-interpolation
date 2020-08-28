@@ -24,13 +24,15 @@ throttle_a = []
 loss_a = []
 energy_vio_a = []
 
+sigma = 0.03  
+
 # 30 min period
 
 month = 48*(365/12)
 year = 48*365
 p_to_E_conv = 1/2
 
-df_2 = 2*pd.read_excel("Gigha_data_30_min.xlsx").values
+df_2 = (1/p_to_E_conv)*pd.read_excel("Gigha_data_30_min.xlsx").values
 
 # transform 48 30 min rows into a time series
 
@@ -44,12 +46,34 @@ df = pd.DataFrame(data=power, columns=["Average Power/ kW"])
 
 power_split_m = np.array_split(df.values, math.ceil(len(df)/month)) # split into months
 
+power_agg_m = np.array([sum(i) for i in power_split_m]) # aggregate the months
+
 """Want to calculate utilisation from this & from the agg. value and compare"""
 
-power_agg_m = np.array([sum(i) for i in power_split_m]) # aggregate the months
+# need list comps like this --> for it to work
+test_logic = [i if i <= np.average(power_agg_m) else np.average(power_agg_m) for i in power_agg_m]
+
+
+agg_useable_energy = sum([i if i <= np.average(power_agg_m) else np.average(power_agg_m) for i in power_agg_m])
+max_useable_energy = (len(power_agg_m)*np.average(power_agg_m))
+agg_utilisation = agg_useable_energy/max_useable_energy
+
+# the loss is high but this is partly a sizing issue, can get to ca. 21% error with 1.5 times sizing
+# going to need to run sizing algorithm
+
+
+acc_useable_energy = sum([i if i <= 1.5*np.average(power_agg_m)/month else 1.5*np.average(power_agg_m)/month for i in df.values])
+acc_utilisation = acc_useable_energy/max_useable_energy
+
+util_error = acc_utilisation - agg_utilisation
+total_agg_spill = abs(util_error)+(1-abs(util_error))*0.14
+print("util error", util_error)
+
+print("total spill then",total_agg_spill)
 
 # avoiding the fact that don't have all 5 years use [] in the arguments
 
+"""
 # rounds years up
 
 counter = [math.ceil(len(df)/year) -1  if math.ceil(len(df)/year) > 1 else 0][0]
@@ -70,7 +94,6 @@ else:
     yearly_figures = (p_to_E_conv)*power_agg_y[:counter]
     monthly_figures = (p_to_E_conv)*power_agg_m[:counter*12]
     
-sigma = 0.03  
     
 # want to take the 30 minute power data and interpolate into 1-minute data
     
@@ -198,4 +221,5 @@ plt.title("Percentage Energy Loss as a funciton of IT Sizing")
 plt.ylabel(r"Percentage Energy Loss (%)")
 plt.xlabel("IT sizing as a Fraction of Annual Average Power")
 plt.savefig("loss_load.pdf")
+"""
 
